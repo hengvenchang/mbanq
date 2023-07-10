@@ -1,6 +1,6 @@
 const uuid = require("uuid");
 const joi = require("joi");
-const { dynamodbPut, dynamodbGet } = require("../utils/connection");
+const { dynamodbPut, dynamodbGet } = require("../utils/db/db");
 const { APICreatedResponse } = require("../utils/response/APIResponse");
 const { convertEventBodyToDTO } = require("../utils/request/dtoValidation");
 
@@ -21,6 +21,7 @@ module.exports.handler = async (event) => {
       id,
       username: dto.username,
       dob: dto.dob,
+      createdAt: new Date().toString(),
     });
 
     // Retrieve back the newly created item

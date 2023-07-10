@@ -1,4 +1,4 @@
-const { dynamodbGet } = require("../utils/connection");
+const { dynamodbGet } = require("../utils/db/db");
 const {
   APIResponse,
   APIBadRequestResponse,

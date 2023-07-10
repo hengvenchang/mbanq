@@ -1,5 +1,6 @@
-const { dynamodbScan } = require("../utils/connection");
+const { dynamodbScan } = require("../utils/db/db");
 const { APIResponse } = require("../utils/response/APIResponse");
+
 module.exports.handler = async () => {
   const result = await dynamodbScan();
 
