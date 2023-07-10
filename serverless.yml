@@ -1,0 +1,74 @@
+org: vencheang
+app: demo
+service: demo
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: "ap-southeast-1"
+  environment:
+    DYNAMODB_USER_TABLE: ${self:service}-users-${sls:stage}
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:PutItem"
+            - "dynamodb:Get*"
+            - "dynamodb:Scan*"
+            - "dynamodb:UpdateItem"
+            - "dynamodb:DeleteItem"
+          Resource: arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:service}-users-${sls:stage}
+
+custom:
+  functionsBasePath: src/handlers
+
+functions:
+  api:
+    handler: index.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
+  Users:
+    handler: users.handler
+    events:
+      - httpApi:
+          path: /users
+          method: get
+  CreateUser:
+    handler: createUser.handler
+    events:
+      - httpApi:
+          path: /users
+          method: post
+  UserDetails:
+    handler: userDetail.handler
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: get
+  CreateNote:
+    handler: createNote.handler
+    events:
+      - httpApi:
+          path: /notes
+          method: post
+
+resources:
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        TableName: ${self:service}-users-${sls:stage}
+
+plugins:
+  - serverless-functions-base-path
