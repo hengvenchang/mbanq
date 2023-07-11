@@ -23,6 +23,7 @@ module.exports.handler = async (event) => {
       text: dto.note,
       createdAt: new Date().toString(),
     };
+
     const result = await dynamodbGet(dto.userId);
     if (!result.Item) {
       return APIBadRequestResponse({ message: "User not found" });
