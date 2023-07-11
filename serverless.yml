@@ -1,4 +1,3 @@
-org: vencheang
 app: demo
 service: demo
 frameworkVersion: "3"
