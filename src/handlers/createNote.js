@@ -17,7 +17,7 @@ module.exports.handler = async (event) => {
     // convert event body to Json object and validate using defined schema
     const dto = convertEventBodyToDTO(event, schema);
 
-    // Generate a unique ID for note
+    // Generate a unique ID for note1
     const newNote = {
       id: uuid.v4(),
       text: dto.note,
