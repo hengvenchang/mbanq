@@ -37,148 +37,36 @@ const dynamodbPut = async (item) => {
   return dbConnection.put(putParams).promise();
 };
 
-// all these comment function is my attempt to use update but couldn't able to make it work yet
-
-// const dynamodbUpdate = async (userId, note) => {
-//   const p = {
-//     ...params,
-//     Key: { id: userId },
-//     UpdateExpression: "SET #notes = #notes.L.append(newNote)",
-//     ExpressionAttributeNames: {
-//       "#notes": "notes",
-//     },
-//     ExpressionAttributeValues: {
-//       ":newNote": { L: [note.note, "world"] },
-//     },
-//   };
-//   console.log("p", p);
-//   const dbConnection = await dynamodb();
-//   return dbConnection.update(p).promise();
-// };
-
-// const dynamodbUpdate = async (userId, note) => {
-// const p = {
-//   ...params,
-//   Key: { id: { S: userId } },
-//   UpdateExpression: "SET #ri = list_append(#ri, :vals)",
-//   ExpressionAttributeNames: { "#ri": "notes" },
-//   ExpressionAttributeValues: {
-//     ":vals": {
-//       L: [{ S: "Screwdriver" }, { S: "Hacksaw" }],
-//     },
-//   },
-// };
-// --table-name ProductCatalog \
-// --key '{"Id":{"N":"789"}}' \
-
-// --update-expression "SET #ri = list_append(#ri, :vals)" \
-// --expression-attribute-names '{"#ri": "RelatedItems"}' \
-// --expression-attribute-values file://values.json  \
-// --return-values ALL_NEW
-
-//   const dbConnection = await dynamodb();
-//   return dbConnection.update(p).promise();
-// };
-
-// const dynamodbUpdate = async (userId, note) => {
-//   const p = {
-//     ...params,
-//     Key: {
-//       id: userId,
-//     },
-//     UpdateExpression: "set #title = :v_songTitle, #year = :v_year",
-//     ExpressionAttributeNames: {
-//       "#title": "SongTitle",
-//       "#year": "Year",
-//     },
-//     ExpressionAttributeValues: {
-//       ":v_songTitle": "Call me tomorrow",
-//       ":v_year": 1998,
-//     },
-//     ReturnValues: "ALL_NEW",
-//   };
-//   console.log("p", p);
-// const dbConnection = await dynamodb();
-// return dbConnection.update(p).promise();
-// };
-
-// const dynamodbUpdate = async (userId, note) => {
-//   const newNote = { id: note.id, text: note.note };
-//   const item = {
-//     id: userId,
-//     notes: [newNote],
-//   };
-//   try {
-//     const p = {
-//       ...params,
-//       Item: item,
-//     };
-
-//     const dbConnection = await dynamodb();
-//     return dbConnection.put(p).promise();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// const dynamodbUpdate = async (userId, note) => {
-//   try {
-//     const dbConnection = await dynamodb();
-//     const p = {
-//       ...params,
-//       Key: { id: userId },
-//       UpdateExpression: "SET books = list_append(books, :newItem)",
-//       ExpressionAttributeValues: {
-//         ":newItem": [note],
-//       },
-//       ReturnValues: "ALL_NEW",
-//     };
-//     console.log("p", p);
-//     return dbConnection.update(p).promise();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// const dynamodbUpdate = async (userId, note) => {
-//   try {
-//     const getParams = {
-//       ...params,
-//       Item: result,
-//     };
-
-//     const dbConnection = await dynamodb();
-//     const result = dbConnection.get(getParams).promise();
-//     console.log("results", result);
-
-//     return dbConnection.put(p).promise();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const dynamodbUpdate = async (userId, note) => {
   try {
     const result = await dynamodbGet(userId);
     const notes = result.Item.notes;
 
-    let newNotes = [];
-    if (notes) {
-      newNotes = [...result.Item.notes];
+    if (result.Item && result.Item.notes) {
+      notes.push(note);
     }
 
-    const item = {
-      id: userId,
-      notes: newNotes,
-    };
-    const p = {
+    const updateParams = {
       ...params,
-      Item: item,
+      Key: {
+        id: userId,
+      },
+      UpdateExpression:
+        "SET notes = list_append(if_not_exists(notes, :emptyList), :newNotes)",
+      ExpressionAttributeValues: {
+        ":emptyList": [],
+        ":newNotes": notes,
+      },
     };
 
-    console.log("p", p);
     const dbConnection = await dynamodb();
-    return dbConnection.put(p).promise();
+    return dbConnection.update(updateParams, (err) => {
+      if (err) {
+        console.error("Error updating item in DynamoDB", err);
+      } else {
+        console.log("Item updated successfully");
+      }
+    });
   } catch (error) {
     console.log("error", error);
     throw error;

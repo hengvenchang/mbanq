@@ -25,24 +25,13 @@ module.exports.handler = async (event) => {
     };
 
     const result = await dynamodbGet(dto.userId);
+
     if (!result.Item) {
       return APIBadRequestResponse({ message: "User not found" });
     }
 
-    // Append new notes
-    const notes = result.Item.notes;
-    let newNotes = [];
-    if (notes) {
-      newNotes = [...result.Item.notes];
-    }
-    newNotes.push(newNote);
-    const item = {
-      id: dto.userId,
-      notes: newNotes,
-    };
-
     // Update item notes
-    await dynamodbPut(item);
+    await dynamodbUpdate(dto.userId, newNote);
 
     // Retrieve back the newly created item
     const updated = await dynamodbGet(dto.userId);
