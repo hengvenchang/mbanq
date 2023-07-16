@@ -24,18 +24,8 @@ module.exports.handler = async (event) => {
       createdAt: new Date().toString(),
     };
 
-    const result = await dynamodbGet(dto.userId);
-
-    if (!result.Item) {
-      return APIBadRequestResponse({ message: "User not found" });
-    }
-
     // Update item notes
-    await dynamodbUpdate(dto.userId, newNote);
-
-    // Retrieve back the newly created item
-    const updated = await dynamodbGet(dto.userId);
-    return APICreatedResponse({ result: updated });
+    return dynamodbUpdate(dto.userId, newNote);
   } catch (error) {
     return error;
   }

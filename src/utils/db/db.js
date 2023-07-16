@@ -40,6 +40,10 @@ const dynamodbPut = async (item) => {
 const dynamodbUpdate = async (userId, note) => {
   try {
     const result = await dynamodbGet(userId);
+
+    if (!result.Item) {
+      return APIBadRequestResponse({ message: "User not found" });
+    }
     const notes = result.Item.notes;
 
     if (result.Item && result.Item.notes) {
@@ -57,6 +61,7 @@ const dynamodbUpdate = async (userId, note) => {
         ":emptyList": [],
         ":newNotes": notes,
       },
+      ReturnValues: "ALL_NEW",
     };
 
     const dbConnection = await dynamodb();
