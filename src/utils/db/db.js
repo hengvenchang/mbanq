@@ -7,20 +7,16 @@ const TABLE_PARMS = {
 const dynamodbClient = () => new AWS.DynamoDB.DocumentClient();
 
 const dynamodbScan = async () => {
-  const connection = await dynamodbClient();
-  return connection.scan(TABLE_PARMS).promise();
+  return dynamodbClient().scan(TABLE_PARMS).promise();
 };
 
 const dynamodbGet = async (id) => {
   const params = {
     ...TABLE_PARMS,
-    Key: {
-      id,
-    },
+    Key: { id },
   };
 
-  const dbConnection = await dynamodbClient();
-  return dbConnection.get(params).promise();
+  return dynamodbClient().get(params).promise();
 };
 
 const dynamodbPut = async (item) => {
@@ -28,58 +24,15 @@ const dynamodbPut = async (item) => {
     ...TABLE_PARMS,
     Item: item,
   };
-  const dbConnection = await dynamodbClient();
-  return dbConnection.put(putParams).promise();
+  return dynamodbClient().put(putParams).promise();
 };
-
-// const dynamodbUpdate = async (userId, note) => {
-//   try {
-// const result = await dynamodbGet(userId);
-
-// if (!result.Item) {
-//   return APIBadRequestResponse({ message: "User not found" });
-// }
-
-// const notes = result.Item.notes;
-// if (result.Item && result.Item.notes) {
-//   notes.push(note);
-// }
-
-// const updateParams = {
-//   ...TABLE_PARMS,
-//   Key: {
-//     id: userId,
-//   },
-//   UpdateExpression:
-//     "SET notes = list_append(if_not_exists(notes, :emptyList), :newNotes)",
-//   ExpressionAttributeValues: {
-//     ":emptyList": [],
-//     ":newNotes": notes,
-//   },
-//   ReturnValues: "ALL_NEW",
-// };
-
-//     const dbConnection = await dynamodbClient();
-//     return dbConnection.update(updateParams, (err) => {
-//       if (err) {
-//         console.error("Error updating item in DynamoDB", err);
-//       } else {
-//         console.log("Item updated successfully");
-//       }
-//     });
-//   } catch (error) {
-//     console.log("error", error);
-//     throw error;
-//   }
-// };
 
 const dynamodbUpdate = async (params) => {
   params = {
     ...params,
     ...TABLE_PARMS,
   };
-  const dbConnection = await dynamodbClient();
-  return dbConnection.update(params);
+  return dynamodbClient().update(params).promise();
 };
 
 module.exports = {

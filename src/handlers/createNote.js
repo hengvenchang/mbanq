@@ -35,11 +35,10 @@ module.exports.handler = async (event) => {
         "SET notes = list_append(if_not_exists(notes, :emptyList), :newNotes)",
       ExpressionAttributeValues: {
         ":emptyList": [],
-        ":newNotes": newNote,
+        ":newNotes": [newNote],
       },
       ReturnValues: "ALL_NEW",
     };
-
     // Update item notes
     return dynamodbUpdate(updateParams);
   } catch (error) {
