@@ -4,6 +4,8 @@ phases:
     commands:
       - npm install
       - npm install -g serverless
+      - npm install eslint --save-dev
   build:
     commands:
+      - npx eslint .
       - serverless deploy
